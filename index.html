@@ -25,25 +25,11 @@ body{
   border-bottom:2px solid #ccc;
   padding-bottom:10px;
 }
-.logo img{
-  width:90px;
-}
-.school-text{
-  flex:1;
-  text-align:center;
-}
-.school-text h1{
-  color:red;
-  margin:4px 0;
-}
-.school-text .info{
-  font-weight:bold;
-  margin:3px 0;
-}
-.school-text h3{
-  margin:3px 0;
-  font-weight:normal;
-}
+.logo img{width:90px;}
+.school-text{flex:1;text-align:center;}
+.school-text h1{color:red;margin:4px 0;}
+.school-text .info{font-weight:bold;margin:3px 0;}
+.school-text h3{margin:3px 0;font-weight:normal;}
 
 /* FORM */
 .form{
@@ -62,7 +48,6 @@ body{
   text-align:center;
   font-size:12px;
   color:#555;
-  margin-top:-5px;
 }
 .form button{
   padding:8px 18px;
@@ -74,35 +59,14 @@ body{
 .search{background:#0d6efd;}
 .print{background:#198754;}
 
-#error{
-  color:red;
-  margin-top:10px;
-  text-align:center;
-}
+#error{color:red;margin-top:10px;text-align:center;}
 
 /* TABLE */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-table,th,td{
-  border:1px solid #000;
-}
-th{
-  background:#3fa2dd;
-  color:#fff;
-  padding:8px;
-}
-td{
-  padding:6px;
-  text-align:center;
-}
-.total-row td{
-  background:#3fa2dd;
-  color:#fff;
-  font-weight:bold;
-}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+table,th,td{border:1px solid #000;}
+th{background:#3fa2dd;color:#fff;padding:8px;}
+td{padding:6px;text-align:center;}
+.total-row td{background:#3fa2dd;color:#fff;font-weight:bold;}
 
 /* FOOTER */
 .footer{
@@ -138,7 +102,7 @@ td{
   <!-- HEADER -->
   <div class="header">
     <div class="logo">
-      <img src="https://ik.imagekit.io/a2wpi1kd9/imgToUrl/image-to-url_9FkUjGvCmc" alt="School Logo">
+      <img src="https://ik.imagekit.io/a2wpi1kd9/imgToUrl/image-to-url_9FkUjGvCmc">
     </div>
     <div class="school-text">
       <h1>BRIGHT CAREER PUBLIC SCHOOL</h1>
@@ -166,7 +130,7 @@ td{
     <button class="print" onclick="window.print()">Print</button>
 
     <div class="hint">
-      Date of Birth example: <b>DD-MM-YYYY</b> (Example: 06-06-2012)
+      Date of Birth example: <b>DD-MM-YYYY</b> (06-06-2012)
     </div>
   </div>
 
@@ -179,7 +143,7 @@ td{
 const SHEET_URL =
 "https://opensheet.elk.sh/1ILjMxyHNYmRHzSMkhr7frPfvE67No_Y_i6By-7FeOKQ/Results";
 
-/* Convert picked date to YYYY-MM-DD (sheet format) */
+/* Date → YYYY-MM-DD */
 function formatDateForSheet(dateValue){
   const d = new Date(dateValue);
   const yyyy = d.getFullYear();
@@ -188,9 +152,16 @@ function formatDateForSheet(dateValue){
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/* ✅ Class normalize: 8 / 8th / Class 8 → Class 8 */
+function normalizeClass(cls){
+  if(!cls) return "";
+  const num = cls.toString().match(/\d+/);
+  return num ? "Class " + num[0] : cls;
+}
+
 async function getResult(){
   const roll = document.getElementById("roll").value.trim();
-  const cls  = document.getElementById("cls").value;
+  const clsInput = document.getElementById("cls").value;
   const dobInput = document.getElementById("dob").value;
 
   const error = document.getElementById("error");
@@ -199,7 +170,7 @@ async function getResult(){
   error.innerHTML="";
   result.innerHTML="";
 
-  if(!roll || !cls || !dobInput){
+  if(!roll || !clsInput || !dobInput){
     error.innerHTML="Please enter Roll No, Class and Date of Birth";
     return;
   }
@@ -211,8 +182,7 @@ async function getResult(){
 
   const r = data.find(x =>
     x["Roll no."] === roll &&
-    x["Class"] === cls &&
-    x["Dob"] === dob
+    formatDateForSheet(x["Dob"]) === dob
   );
 
   if(!r){
@@ -220,7 +190,8 @@ async function getResult(){
     return;
   }
 
-  /* ✅ CLASS SIRF EK HI JAGAH */
+  const displayClass = normalizeClass(r["Class"]);
+
   result.innerHTML = `
     <p>
       <b>Name:</b> ${r.Name} &nbsp;&nbsp;
@@ -228,7 +199,7 @@ async function getResult(){
     </p>
     <p>
       <b>Roll No:</b> ${r["Roll no."]} &nbsp;&nbsp;
-      <b>Class:</b> ${r.Class} &nbsp;&nbsp;
+      <b>Class:</b> ${displayClass} &nbsp;&nbsp;
       <b>DOB:</b> ${r.Dob}
     </p>
 
