@@ -10,7 +10,7 @@ body{
   background:#f2f2f2;
 }
 .container{
-  max-width:600px;
+  max-width:900px;
   margin:20px auto;
   background:#fff;
   border:3px solid red;
@@ -21,42 +21,77 @@ body{
 }
 .header img{
   width:80px;
+  display:block;
+  margin:0 auto 8px;
 }
 .header h1{
   color:red;
-  margin:5px 0;
+  margin:4px 0;
 }
 .header h3{
   margin:3px 0;
   font-weight:normal;
 }
-input, select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  font-size:16px;
-}
-.btns{
+
+.form{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
   margin-top:15px;
-  text-align:center;
 }
-button{
-  padding:10px 25px;
-  font-size:16px;
+.form input,.form select{
+  padding:8px;
+  font-size:15px;
+}
+.form button{
+  padding:8px 18px;
+  font-size:15px;
   border:none;
   color:#fff;
   cursor:pointer;
 }
 .search{background:#0d6efd;}
 .print{background:#198754;}
+
 #error{
   color:red;
   margin-top:10px;
   text-align:center;
 }
-#result{
+
+table{
+  width:100%;
+  border-collapse:collapse;
   margin-top:15px;
-  line-height:1.6;
+}
+table,th,td{
+  border:1px solid #000;
+}
+th{
+  background:#3fa2dd;
+  color:#fff;
+  padding:8px;
+}
+td{
+  padding:6px;
+  text-align:center;
+}
+.total-row td{
+  background:#3fa2dd;
+  color:#fff;
+  font-weight:bold;
+}
+.footer{
+  display:flex;
+  justify-content:space-between;
+  margin-top:40px;
+}
+.footer div{
+  width:40%;
+  text-align:center;
+  border-top:1px solid #000;
+  padding-top:5px;
 }
 </style>
 </head>
@@ -64,37 +99,33 @@ button{
 <body>
 
 <div class="container">
+
   <div class="header">
-    <img src="https://i.imgur.com/5M0pX5B.png" alt="Logo">
+    <!-- ✅ SCHOOL LOGO -->
+    <img src="https://ik.imagekit.io/a2wpi1kd9/imgToUrl/image-to-url_9FkUjGvCmc" alt="School Logo">
+
     <h1>BRIGHT CAREER PUBLIC SCHOOL</h1>
     <h3>SHRAWASTI (U.P.)</h3>
     <h3>KOTWALI BHINGA (U-DISE CODE) 09510215001</h3>
     <h3>HALF YEARLY EXAMINATION – 2025 RESULT</h3>
   </div>
 
-  <input id="roll" placeholder="Enter Roll No (BCPS801)">
-  
-  <select id="cls">
-    <option value="">Select Class</option>
-    <option>Class 1</option>
-    <option>Class 2</option>
-    <option>Class 3</option>
-    <option>Class 4</option>
-    <option>Class 5</option>
-    <option>Class 6</option>
-    <option>Class 7</option>
-    <option>Class 8</option>
-  </select>
-
-  <input type="date" id="dob">
-
-  <div class="btns">
+  <div class="form">
+    <input id="roll" placeholder="Roll No (BCPS801)">
+    <select id="cls">
+      <option value="">Select Class</option>
+      <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+      <option>Class 4</option><option>Class 5</option>
+      <option>Class 6</option><option>Class 7</option><option>Class 8</option>
+    </select>
+    <input type="date" id="dob">
     <button class="search" onclick="getResult()">Search</button>
     <button class="print" onclick="window.print()">Print</button>
   </div>
 
   <div id="error"></div>
   <div id="result"></div>
+
 </div>
 
 <script>
@@ -117,52 +148,51 @@ async function getResult(){
     return;
   }
 
-  result.innerHTML="Searching...";
+  const res = await fetch(SHEET_URL);
+  const data = await res.json();
 
-  try{
-    const res = await fetch(SHEET_URL);
-    const data = await res.json();
+  const r = data.find(x =>
+    x["Roll no."] === roll &&
+    x["Class"] === cls &&
+    x["Dob"] === dob
+  );
 
-    const row = data.find(r =>
-      r["Roll no."] === roll &&
-      r["Class"] === cls &&
-      r["Dob"] === dob
-    );
-
-    if(!row){
-      error.innerHTML="Result not found";
-      result.innerHTML="";
-      return;
-    }
-
-    result.innerHTML = `
-      <b>Name:</b> ${row["Name"]}<br>
-      <b>Father:</b> ${row["Father"]}<br>
-      <b>Class:</b> ${row["Class"]}<br>
-      <b>Roll No:</b> ${row["Roll no."]}<br>
-      <b>DOB:</b> ${row["Dob"]}<br><hr>
-
-      <b>Hindi:</b> ${row["Hindi"]}<br>
-      <b>English:</b> ${row["English"]}<br>
-      <b>Maths:</b> ${row["Maths"]}<br>
-      <b>Science:</b> ${row["Science"]}<br>
-      <b>SST:</b> ${row["SST"]}<br>
-      <b>GK:</b> ${row["GK"]}<br>
-      <b>Art:</b> ${row["Art"]}<br>
-      <b>Moral:</b> ${row["Moral"]}<br>
-      <b>PT:</b> ${row["PT"]}<br><hr>
-
-      <b>Total:</b> ${row["Total"]}<br>
-      <b>Result:</b> ${row["Result"]}<br>
-      <b>Percentage:</b> ${row["Percentage"]}
-    `;
-  }catch(e){
-    error.innerHTML="Error loading result. Try again.";
-    result.innerHTML="";
+  if(!r){
+    error.innerHTML="Result not found";
+    return;
   }
+
+  result.innerHTML = `
+  <p><b>Name:</b> ${r.Name} &nbsp;&nbsp;
+     <b>Father's Name:</b> ${r.Father} &nbsp;&nbsp;
+     <b>Class:</b> ${r.Class}</p>
+  <p><b>Roll No:</b> ${r["Roll no."]} &nbsp;&nbsp;
+     <b>DOB:</b> ${r.Dob}</p>
+
+  <table>
+    <tr><th>Sr</th><th>Subject</th><th>Full Marks</th><th>Marks Obtained</th></tr>
+    <tr><td>1</td><td>Hindi</td><td>50</td><td>${r.Hindi}</td></tr>
+    <tr><td>2</td><td>English</td><td>50</td><td>${r.English}</td></tr>
+    <tr><td>3</td><td>Maths</td><td>50</td><td>${r.Maths}</td></tr>
+    <tr><td>4</td><td>Science</td><td>50</td><td>${r.Science}</td></tr>
+    <tr><td>5</td><td>SST</td><td>50</td><td>${r.SST}</td></tr>
+    <tr><td>6</td><td>GK</td><td>50</td><td>${r.GK}</td></tr>
+    <tr><td>7</td><td>Art</td><td>50</td><td>${r.Art}</td></tr>
+    <tr><td>8</td><td>Moral</td><td>50</td><td>${r.Moral}</td></tr>
+    <tr><td>9</td><td>PT</td><td>50</td><td>${r.PT}</td></tr>
+
+    <tr class="total-row"><td colspan="2">Total</td><td>450</td><td>${r.Total}</td></tr>
+    <tr class="total-row"><td colspan="3">Percentage</td><td>${r.Percentage}</td></tr>
+    <tr class="total-row"><td colspan="3">Result</td><td>${r.Result}</td></tr>
+  </table>
+
+  <div class="footer">
+    <div>Class Teacher</div>
+    <div>Principal</div>
+  </div>
+  `;
 }
 </script>
 
 </body>
 </html>
-
