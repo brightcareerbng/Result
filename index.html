@@ -1,177 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Exam Result Portal</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-  margin:0;
   font-family: Arial, sans-serif;
-  background:#ffffff;
+  background:#f5f5f5;
 }
-.container{
-  max-width:1000px;
-  margin:40px auto;
-  border:3px solid #d32f2f;
-  padding:25px;
+.box{
+  max-width:420px;
+  margin:30px auto;
+  border:3px solid red;
+  padding:15px;
+  background:#fff;
 }
-.header{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-.logo img{
-  width:90px;
-}
-.title{
-  text-align:center;
-  flex:1;
-}
-.title h1{
-  margin:0;
-  color:#d32f2f;
-  font-size:26px;
-}
-.title h3,.title h4{
-  margin:4px 0;
-  font-weight:normal;
-}
-.form{
-  margin-top:25px;
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-.form input,.form select{
+h1{color:red;text-align:center;margin:5px 0;}
+h3{text-align:center;margin:3px 0;}
+input,select,button{
+  width:100%;
   padding:10px;
-  font-size:15px;
-  width:220px;
+  margin-top:10px;
 }
-.form button{
-  padding:10px 18px;
-  font-size:15px;
+button{
+  background:#0d6efd;
+  color:#fff;
   border:none;
   cursor:pointer;
-  background:#1976d2;
-  color:#fff;
 }
-#printBtn{ background:#388e3c; }
-#error{ color:red; font-weight:bold; margin-top:15px; }
-#result{ margin-top:20px; font-size:15px; }
+#printBtn{background:#198754;}
+#error{color:red;margin-top:10px;}
+#result{margin-top:15px;}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
+  <h1>BRIGHT CAREER PUBLIC SCHOOL</h1>
+  <h3>SHRAWASTI (U.P.)</h3>
+  <h3>HALF YEARLY EXAMINATION – 2025 RESULT</h3>
 
-  <div class="header">
-    <div class="logo">
-      <img src="https://i.imgur.com/7bK6zjv.png">
-    </div>
-    <div class="title">
-      <h1>BRIGHT CAREER PUBLIC SCHOOL</h1>
-      <h3>SHRAWASTI (U.P.)</h3>
-      <h4>KOTWALI BHINGA (U-DISE CODE) 09510215001</h4>
-      <h4>HALF YEARLY EXAMINATION – 2025 RESULT</h4>
-    </div>
-  </div>
+  <input id="roll" placeholder="Enter Roll No (BCPS801)">
+  
+  <select id="cls">
+    <option value="">Select Class</option>
+    <option>Class 1</option>
+    <option>Class 2</option>
+    <option>Class 3</option>
+    <option>Class 4</option>
+    <option>Class 5</option>
+    <option>Class 6</option>
+    <option>Class 7</option>
+    <option>Class 8</option>
+  </select>
 
-  <div class="form">
-    <input type="text" id="roll" placeholder="Enter Roll No (BCPS801)">
+  <input type="date" id="dob">
 
-    <select id="cls">
-      <option value="">Select Class</option>
-      <option>Class 1</option>
-      <option>Class 2</option>
-      <option>Class 3</option>
-      <option>Class 4</option>
-      <option>Class 5</option>
-      <option>Class 6</option>
-      <option>Class 7</option>
-      <option>Class 8</option>
-    </select>
-
-    <input type="date" id="dob">
-
-    <button onclick="getResult()">Search</button>
-    <button id="printBtn" onclick="window.print()">Print</button>
-  </div>
+  <button onclick="getResult()">Search</button>
+  <button id="printBtn" onclick="window.print()">Print</button>
 
   <div id="error"></div>
   <div id="result"></div>
-
 </div>
 
-<!-- JS FILE CONNECT -->
-<script src="script.js"></script>
-
-</body>
-</html>
+<script>
 const SHEET_URL =
 "https://opensheet.elk.sh/1ILjMxyHNYmRHzSMkhr7frPfvE67No_Y_i6By-7FeOKQ/Results";
 
 async function getResult(){
   const roll = document.getElementById("roll").value.trim();
-  const dob  = document.getElementById("dob").value;
   const cls  = document.getElementById("cls").value;
+  const dob  = document.getElementById("dob").value;
 
   const error = document.getElementById("error");
-  const out   = document.getElementById("result");
+  const result = document.getElementById("result");
 
-  error.innerHTML = "";
-  out.innerHTML   = "";
+  error.innerHTML="";
+  result.innerHTML="";
 
-  if(!roll || !dob || !cls){
-    error.innerHTML = "Please enter Roll No, Class and Date of Birth";
+  if(!roll || !cls || !dob){
+    error.innerHTML="Please enter Roll No, Class and DOB";
     return;
   }
 
-  out.innerHTML = "Searching...";
+  result.innerHTML="Searching...";
 
-  try{
-    const res  = await fetch(SHEET_URL);
-    const data = await res.json();
+  const res = await fetch(SHEET_URL);
+  const data = await res.json();
 
-    const row = data.find(r =>
-      r["Roll no."] === roll &&
-      r["Dob"] === dob &&
-      r["Class"] === cls
-    );
+  const row = data.find(r =>
+    r["Roll no"] === roll &&
+    r["Class"] === cls &&
+    r["Dob"] === dob
+  );
 
-    if(!row){
-      error.innerHTML = "Result not found";
-      out.innerHTML = "";
-      return;
-    }
-
-    out.innerHTML = `
-      <b>Name:</b> ${row.Name}<br>
-      <b>Father:</b> ${row.Father}<br>
-      <b>Class:</b> ${row.Class}<br>
-      <b>Roll No:</b> ${row["Roll no."]}<br>
-      <b>DOB:</b> ${row.Dob}<br><br>
-
-      <b>Hindi:</b> ${row.Hindi},
-      <b>English:</b> ${row.English},
-      <b>Maths:</b> ${row.Maths},
-      <b>Science:</b> ${row.Science},
-      <b>SST:</b> ${row.SST},
-      <b>GK:</b> ${row.GK},
-      <b>Art:</b> ${row.Art},
-      <b>Moral:</b> ${row.Moral},
-      <b>PT:</b> ${row.PT}<br><br>
-
-      <b>Total:</b> ${row.Total}<br>
-      <b>Result:</b> ${row.Result}<br>
-      <b>Percentage:</b> ${row.Percentage}
-    `;
+  if(!row){
+    error.innerHTML="Result not found";
+    result.innerHTML="";
+    return;
   }
-  catch(e){
-    error.innerHTML = "Error loading data. Try again.";
-    out.innerHTML = "";
-  }
+
+  result.innerHTML = `
+    <b>Name:</b> ${row.Name}<br>
+    <b>Father:</b> ${row["Father name"]}<br>
+    <b>Class:</b> ${row.Class}<br>
+    <b>Roll No:</b> ${row["Roll no"]}<br>
+    <b>DOB:</b> ${row.Dob}<br><br>
+
+    <b>Hindi:</b> ${row.Hindi}<br>
+    <b>English:</b> ${row.English}<br>
+    <b>Maths:</b> ${row.Maths}<br>
+    <b>Science:</b> ${row.Science}<br>
+    <b>SST:</b> ${row.SST}<br>
+    <b>GK:</b> ${row.GK}<br>
+    <b>Art:</b> ${row.Art}<br>
+    <b>Moral:</b> ${row.Moral}<br>
+    <b>PT:</b> ${row.PT}<br><br>
+
+    <b>Total:</b> ${row.Total}<br>
+    <b>Result:</b> ${row.Result}<br>
+    <b>Percentage:</b> ${row.Percentage}
+  `;
 }
+</script>
+
+</body>
+</html>
+
